@@ -1,0 +1,12 @@
+bin/
+obj/
+artifacts/
+*.user
+.vs/
+.idea/
+StrykerOutput/
+TestResults/
+node_modules/
+dist/
+coverage/
+.env
