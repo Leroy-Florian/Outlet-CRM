@@ -1,12 +1,11 @@
 using System.Text.Json;
-using Crm.Core.Application.Abstractions;
 using Crm.Core.Domain.Analytics;
 using Crm.Kernel.Shared;
 
-namespace Crm.Core.Infrastructure.NuGet;
+namespace Crm.Core.Infrastructure.PackageStats;
 
-/// <summary>Adapter over the NuGet azuresearch query API.</summary>
-public sealed class NuGetStatsHttpClient(HttpClient httpClient) : INuGetStatsClient
+/// <summary>Adapter over the NuGet azuresearch query API (cumulative total downloads).</summary>
+public sealed class NuGetStatsHttpClient(HttpClient httpClient)
 {
     public async Task<Result<long>> GetTotalDownloadsAsync(PackageId packageId, CancellationToken cancellationToken)
     {

@@ -1,7 +1,11 @@
 # Outlet CRM
 
-CRM / dashboard pour le projet Outlet : suivi des prospects, analytics NuGet
-(téléchargements), métriques d'API et suivi des paiements.
+CRM / dashboard **multi-produits** (Outlet, FluxPDF, Accordent…). Le module
+`Products` est la racine : chaque produit suit N packages (NuGet **et** npm)
+et N repositories GitHub (issues/stars/forks) ; prospects, paiements,
+snapshots de téléchargements et métriques d'API sont tous rattachés à un
+`ProductId`. Sémantique des compteurs : NuGet = cumul total, npm = volume
+glissant 30 jours.
 
 ## Commandes clés
 
@@ -14,7 +18,7 @@ CRM / dashboard pour le projet Outlet : suivi des prospects, analytics NuGet
 
 ```
 Crm.Kernel.Shared        → building blocks (Result, Error, AggregateRoot, IClock) — dépend de rien
-Crm.Core.Domain          → agrégats par module : Prospects, Analytics, ApiMetrics, Payments
+Crm.Core.Domain          → agrégats par module : Products, Prospects, Analytics, ApiMetrics, Payments
 Crm.Core.Application     → ports (Abstractions/) + use cases retournant Result
 Crm.Core.Infrastructure  → EF Core/Npgsql, HTTP NuGet, horloge — seul endroit pour l'IO
 Crm.Api                  → composition root mince (minimal APIs)

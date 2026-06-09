@@ -1,4 +1,5 @@
 using Crm.Core.Domain.Payments;
+using Crm.Core.Domain.Products;
 using Xunit;
 
 namespace Crm.Core.Domain.Tests.Payments;
@@ -8,7 +9,7 @@ public sealed class PaymentTests
     private static readonly DateTimeOffset Now = new(2026, 6, 9, 12, 0, 0, TimeSpan.Zero);
 
     private static Payment CreatePayment() =>
-        Payment.Create(Money.Create(49.99m, "eur").Value, "stripe", "pi_123", Now).Value;
+        Payment.Create(ProductId.New(), Money.Create(49.99m, "eur").Value, "stripe", "pi_123", Now).Value;
 
     [Fact]
     public void Should_StartPending_When_Created()
@@ -19,7 +20,7 @@ public sealed class PaymentTests
     [Fact]
     public void Should_Fail_When_SourceIsBlank()
     {
-        var result = Payment.Create(Money.Create(1m, "EUR").Value, " ", "ref", Now);
+        var result = Payment.Create(ProductId.New(), Money.Create(1m, "EUR").Value, " ", "ref", Now);
 
         Assert.True(result.IsFailure);
         Assert.Equal(PaymentErrors.SourceRequired, result.Error);

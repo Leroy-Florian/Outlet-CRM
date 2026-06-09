@@ -1,4 +1,5 @@
 using Crm.Core.Domain.Analytics;
+using Crm.Core.Domain.Products;
 using Xunit;
 
 namespace Crm.Core.Domain.Tests.Analytics;
@@ -7,8 +8,10 @@ public sealed class DownloadTrendTests
 {
     private static readonly DateTimeOffset Day1 = new(2026, 6, 1, 0, 0, 0, TimeSpan.Zero);
 
+    private static readonly ProductId Product = ProductId.New();
+
     private static DownloadSnapshot Snapshot(long total, DateTimeOffset at) =>
-        DownloadSnapshot.Create(PackageId.Create("outlet.cli").Value, total, at).Value;
+        DownloadSnapshot.Create(Product, PackageRegistry.NuGet, PackageId.Create("outlet.cli").Value, total, at).Value;
 
     [Fact]
     public void Should_ReturnEmpty_When_NoSnapshots()
@@ -35,7 +38,7 @@ public sealed class DownloadTrendTests
     [Fact]
     public void Should_RejectNegativeCount_When_CreatingSnapshot()
     {
-        var result = DownloadSnapshot.Create(PackageId.Create("outlet.cli").Value, -1, Day1);
+        var result = DownloadSnapshot.Create(Product, PackageRegistry.NuGet, PackageId.Create("outlet.cli").Value, -1, Day1);
 
         Assert.True(result.IsFailure);
         Assert.Equal("DownloadSnapshot.NegativeCount", result.Error.Code);

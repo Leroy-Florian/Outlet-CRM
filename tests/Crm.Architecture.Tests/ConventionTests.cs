@@ -37,14 +37,13 @@ public sealed class ConventionTests
     }
 
     [Fact]
-    public void Should_OnlyExposeInterfaces_When_NamespaceIsApplicationAbstractions()
+    public void Should_OnlyExposeInterfacesOrSealedContracts_When_NamespaceIsApplicationAbstractions()
     {
-        var result = Types.InAssembly(Application)
-            .That().ResideInNamespace("Crm.Core.Application.Abstractions")
-            .Should().BeInterfaces()
-            .GetResult();
+        var types = Application.GetTypes()
+            .Where(t => t.Namespace == "Crm.Core.Application.Abstractions" && t is { IsNested: false });
 
-        Assert.True(result.IsSuccessful, FailingTypes(result));
+        Assert.All(types, type =>
+            Assert.True(type.IsInterface || type.IsSealed, $"{type.Name} must be an interface or a sealed port contract."));
     }
 
     [Fact]

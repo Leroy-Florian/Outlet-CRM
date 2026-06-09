@@ -3,8 +3,9 @@ using Crm.Core.Application.Abstractions;
 using Crm.Core.Application.Analytics;
 using Crm.Core.Application.ApiMetrics;
 using Crm.Core.Application.Payments;
+using Crm.Core.Application.Products;
 using Crm.Core.Application.Prospects;
-using Crm.Core.Infrastructure.NuGet;
+using Crm.Core.Infrastructure.PackageStats;
 using Crm.Core.Infrastructure.Persistence;
 using Crm.Core.Infrastructure.Persistence.Repositories;
 using Crm.Core.Infrastructure.Time;
@@ -17,20 +18,42 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CrmDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CrmDatabase")));
 
-builder.Services.AddHttpClient<INuGetStatsClient, NuGetStatsHttpClient>(client =>
+builder.Services.AddHttpClient<NuGetStatsHttpClient>(client =>
     client.BaseAddress = new Uri(builder.Configuration["NuGet:SearchBaseUrl"] ?? "https://azuresearch-usnc.nuget.org/"));
+builder.Services.AddHttpClient<NpmStatsHttpClient>(client =>
+    client.BaseAddress = new Uri(builder.Configuration["Npm:ApiBaseUrl"] ?? "https://api.npmjs.org/"));
+builder.Services.AddHttpClient<GitHubStatsHttpClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["GitHub:ApiBaseUrl"] ?? "https://api.github.com/");
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Outlet-CRM");
+    var token = builder.Configuration["GitHub:Token"];
+    if (!string.IsNullOrWhiteSpace(token))
+    {
+        client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+    }
+});
+
+builder.Services.AddScoped<IPackageStatsClient, PackageStatsClient>();
+builder.Services.AddScoped<IRepoStatsClient>(sp => sp.GetRequiredService<GitHubStatsHttpClient>());
 
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProspectRepository, ProspectRepository>();
 builder.Services.AddScoped<IDownloadSnapshotRepository, DownloadSnapshotRepository>();
+builder.Services.AddScoped<IRepositorySnapshotRepository, RepositorySnapshotRepository>();
 builder.Services.AddScoped<IApiMetricRepository, ApiMetricRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+builder.Services.AddScoped<CreateProduct>();
+builder.Services.AddScoped<TrackPackage>();
+builder.Services.AddScoped<TrackRepository>();
 builder.Services.AddScoped<CreateProspect>();
 builder.Services.AddScoped<AdvanceProspectStage>();
 builder.Services.AddScoped<CaptureDownloadSnapshot>();
+builder.Services.AddScoped<CaptureProductSnapshots>();
 builder.Services.AddScoped<GetDownloadTrend>();
+builder.Services.AddScoped<GetRepositoryHistory>();
 builder.Services.AddScoped<RecordApiMetric>();
 builder.Services.AddScoped<GetEndpointStatistics>();
 builder.Services.AddScoped<RecordPayment>();

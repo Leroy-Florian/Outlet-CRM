@@ -1,3 +1,4 @@
+using Crm.Core.Domain.Products;
 using Crm.Kernel.Shared;
 
 namespace Crm.Core.Domain.Prospects;
@@ -6,15 +7,18 @@ public sealed class Prospect : AggregateRoot<ProspectId>
 {
     private readonly List<Interaction> _interactions = [];
 
-    private Prospect(ProspectId id, string name, Email email, string? company, DateTimeOffset createdAt)
+    private Prospect(ProspectId id, ProductId productId, string name, Email email, string? company, DateTimeOffset createdAt)
         : base(id)
     {
+        ProductId = productId;
         Name = name;
         Email = email;
         Company = company;
         CreatedAt = createdAt;
         Stage = ProspectStage.New;
     }
+
+    public ProductId ProductId { get; }
 
     public string Name { get; }
 
@@ -28,14 +32,14 @@ public sealed class Prospect : AggregateRoot<ProspectId>
 
     public IReadOnlyList<Interaction> Interactions => _interactions;
 
-    public static Result<Prospect> Create(string name, Email email, string? company, DateTimeOffset createdAt)
+    public static Result<Prospect> Create(ProductId productId, string name, Email email, string? company, DateTimeOffset createdAt)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             return Result.Failure<Prospect>(ProspectErrors.NameRequired);
         }
 
-        return Result.Success(new Prospect(ProspectId.New(), name.Trim(), email, company, createdAt));
+        return Result.Success(new Prospect(ProspectId.New(), productId, name.Trim(), email, company, createdAt));
     }
 
     public Result Advance(ProspectStage target)

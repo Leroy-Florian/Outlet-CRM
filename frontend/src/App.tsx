@@ -2,8 +2,10 @@ import { Effect } from "effect"
 import { useEffect, useState } from "react"
 import {
   listPayments,
+  listProducts,
   listProspects,
   type PaymentDto,
+  type ProductDto,
   type ProspectDto,
 } from "./api/client"
 
@@ -21,19 +23,38 @@ const useApi = <T,>(effect: Effect.Effect<T, unknown>, initial: T): T => {
 }
 
 export const App = () => {
+  const products = useApi<ReadonlyArray<ProductDto>>(listProducts, [])
   const prospects = useApi<ReadonlyArray<ProspectDto>>(listProspects, [])
   const payments = useApi<ReadonlyArray<PaymentDto>>(listPayments, [])
 
+  const productName = (id: string) =>
+    products.find((p) => p.id === id)?.name ?? id
+
   return (
     <main style={{ fontFamily: "system-ui", margin: "2rem auto", maxWidth: 960 }}>
-      <h1>Outlet CRM</h1>
+      <h1>CRM produits</h1>
+
+      <section>
+        <h2>Produits ({products.length})</h2>
+        <ul>
+          {products.map((p) => (
+            <li key={p.id}>
+              <strong>{p.name}</strong>
+              {p.description ? ` — ${p.description}` : null}
+              {" · "}
+              {p.packages.length} package(s), {p.repositories.length} repo(s)
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section>
         <h2>Prospects ({prospects.length})</h2>
         <ul>
           {prospects.map((p) => (
             <li key={p.id}>
-              {p.name} — {p.email} — <strong>{p.stage}</strong>
+              [{productName(p.productId)}] {p.name} — {p.email} —{" "}
+              <strong>{p.stage}</strong>
             </li>
           ))}
         </ul>
@@ -44,7 +65,8 @@ export const App = () => {
         <ul>
           {payments.map((p) => (
             <li key={p.id}>
-              {p.amount} {p.currency} via {p.source} — <strong>{p.status}</strong>
+              [{productName(p.productId)}] {p.amount} {p.currency} via {p.source}{" "}
+              — <strong>{p.status}</strong>
             </li>
           ))}
         </ul>

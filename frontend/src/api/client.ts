@@ -21,8 +21,23 @@ export const fetchJson = <T>(path: string): Effect.Effect<T, ApiError> =>
       error instanceof ApiError ? error : new ApiError(0, String(error)),
   })
 
+export interface TrackedPackageDto {
+  readonly registry: string
+  readonly packageId: string
+}
+
+export interface ProductDto {
+  readonly id: string
+  readonly name: string
+  readonly description: string | null
+  readonly packages: ReadonlyArray<TrackedPackageDto>
+  readonly repositories: ReadonlyArray<string>
+  readonly createdAt: string
+}
+
 export interface ProspectDto {
   readonly id: string
+  readonly productId: string
   readonly name: string
   readonly email: string
   readonly company: string | null
@@ -36,8 +51,17 @@ export interface DownloadTrendPointDto {
   readonly delta: number
 }
 
+export interface RepositorySnapshotDto {
+  readonly repository: string
+  readonly openIssues: number
+  readonly stars: number
+  readonly forks: number
+  readonly capturedAt: string
+}
+
 export interface PaymentDto {
   readonly id: string
+  readonly productId: string
   readonly amount: number
   readonly currency: string
   readonly source: string
@@ -46,9 +70,18 @@ export interface PaymentDto {
   readonly createdAt: string
 }
 
+export const listProducts = fetchJson<ReadonlyArray<ProductDto>>("/api/products/")
 export const listProspects = fetchJson<ReadonlyArray<ProspectDto>>("/api/prospects/")
 export const listPayments = fetchJson<ReadonlyArray<PaymentDto>>("/api/payments/")
-export const getDownloadTrend = (packageId: string) =>
+export const getDownloadTrend = (
+  productId: string,
+  registry: string,
+  packageId: string,
+) =>
   fetchJson<ReadonlyArray<DownloadTrendPointDto>>(
-    `/api/analytics/packages/${encodeURIComponent(packageId)}/trend`,
+    `/api/products/${productId}/packages/${registry}/${encodeURIComponent(packageId)}/trend`,
+  )
+export const getRepositoryHistory = (productId: string, repository: string) =>
+  fetchJson<ReadonlyArray<RepositorySnapshotDto>>(
+    `/api/products/${productId}/repositories/${repository}/history`,
   )

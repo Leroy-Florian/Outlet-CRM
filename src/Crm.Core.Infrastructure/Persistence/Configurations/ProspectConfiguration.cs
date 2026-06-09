@@ -11,6 +11,7 @@ public sealed class ProspectConfiguration : IEntityTypeConfiguration<Prospect>
         builder.ToTable("prospects");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).HasConversion(id => id.Value, value => new ProspectId(value));
+        builder.Property(p => p.ProductId).HasConversion(id => id.Value, value => new Crm.Core.Domain.Products.ProductId(value));
         builder.Property(p => p.Name).HasMaxLength(200);
         builder.Property(p => p.Company).HasMaxLength(200);
         builder.Property(p => p.Stage).HasConversion<string>().HasMaxLength(20);

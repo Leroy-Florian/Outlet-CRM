@@ -10,6 +10,7 @@ public sealed class ApiMetricSampleConfiguration : IEntityTypeConfiguration<ApiM
     {
         builder.ToTable("api_metric_samples");
         builder.HasKey(s => s.Id);
+        builder.Property(s => s.ProductId).HasConversion(id => id.Value, value => new Crm.Core.Domain.Products.ProductId(value));
         builder.Property(s => s.Endpoint).HasMaxLength(300);
         builder.HasIndex(s => s.OccurredAt);
         builder.Ignore(s => s.DomainEvents);

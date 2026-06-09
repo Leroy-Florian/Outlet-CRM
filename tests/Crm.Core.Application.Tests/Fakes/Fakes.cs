@@ -2,6 +2,7 @@ using Crm.Core.Application.Abstractions;
 using Crm.Core.Domain.Analytics;
 using Crm.Core.Domain.ApiMetrics;
 using Crm.Core.Domain.Payments;
+using Crm.Core.Domain.Products;
 using Crm.Core.Domain.Prospects;
 using Crm.Kernel.Shared;
 
@@ -19,6 +20,23 @@ public sealed class FakeUnitOfWork : IUnitOfWork
     public Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         SaveCount++;
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class FakeProductRepository : IProductRepository
+{
+    public List<Product> Items { get; } = [];
+
+    public Task<Product?> GetByIdAsync(ProductId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Items.FirstOrDefault(p => p.Id == id));
+
+    public Task<IReadOnlyList<Product>> ListAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Product>>(Items);
+
+    public Task AddAsync(Product product, CancellationToken cancellationToken)
+    {
+        Items.Add(product);
         return Task.CompletedTask;
     }
 }
@@ -44,8 +62,13 @@ public sealed class FakeDownloadSnapshotRepository : IDownloadSnapshotRepository
 {
     public List<DownloadSnapshot> Items { get; } = [];
 
-    public Task<IReadOnlyList<DownloadSnapshot>> ListByPackageAsync(PackageId packageId, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<DownloadSnapshot>>([.. Items.Where(s => s.PackageId == packageId)]);
+    public Task<IReadOnlyList<DownloadSnapshot>> ListByPackageAsync(
+        ProductId productId,
+        PackageRegistry registry,
+        PackageId packageId,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<DownloadSnapshot>>(
+            [.. Items.Where(s => s.ProductId == productId && s.Registry == registry && s.PackageId == packageId)]);
 
     public Task AddAsync(DownloadSnapshot snapshot, CancellationToken cancellationToken)
     {
@@ -54,18 +77,53 @@ public sealed class FakeDownloadSnapshotRepository : IDownloadSnapshotRepository
     }
 }
 
-public sealed class FakeNuGetStatsClient(Result<long> result) : INuGetStatsClient
+public sealed class FakePackageStatsClient(Result<long> result) : IPackageStatsClient
 {
-    public Task<Result<long>> GetTotalDownloadsAsync(PackageId packageId, CancellationToken cancellationToken) =>
-        Task.FromResult(result);
+    public List<(PackageRegistry Registry, string PackageId)> Calls { get; } = [];
+
+    public Task<Result<long>> GetTotalDownloadsAsync(PackageRegistry registry, PackageId packageId, CancellationToken cancellationToken)
+    {
+        Calls.Add((registry, packageId.Value));
+        return Task.FromResult(result);
+    }
+}
+
+public sealed class FakeRepoStatsClient(Result<RepoStats> result) : IRepoStatsClient
+{
+    public List<string> Calls { get; } = [];
+
+    public Task<Result<RepoStats>> GetRepositoryStatsAsync(RepositoryName repository, CancellationToken cancellationToken)
+    {
+        Calls.Add(repository.FullName);
+        return Task.FromResult(result);
+    }
+}
+
+public sealed class FakeRepositorySnapshotRepository : IRepositorySnapshotRepository
+{
+    public List<RepositorySnapshot> Items { get; } = [];
+
+    public Task<IReadOnlyList<RepositorySnapshot>> ListByRepositoryAsync(
+        ProductId productId,
+        RepositoryName repository,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<RepositorySnapshot>>(
+            [.. Items.Where(s => s.ProductId == productId && s.Repository == repository)]);
+
+    public Task AddAsync(RepositorySnapshot snapshot, CancellationToken cancellationToken)
+    {
+        Items.Add(snapshot);
+        return Task.CompletedTask;
+    }
 }
 
 public sealed class FakeApiMetricRepository : IApiMetricRepository
 {
     public List<ApiMetricSample> Items { get; } = [];
 
-    public Task<IReadOnlyList<ApiMetricSample>> ListSinceAsync(DateTimeOffset since, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<ApiMetricSample>>([.. Items.Where(s => s.OccurredAt >= since)]);
+    public Task<IReadOnlyList<ApiMetricSample>> ListSinceAsync(ProductId productId, DateTimeOffset since, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ApiMetricSample>>(
+            [.. Items.Where(s => s.ProductId == productId && s.OccurredAt >= since)]);
 
     public Task AddAsync(ApiMetricSample sample, CancellationToken cancellationToken)
     {
