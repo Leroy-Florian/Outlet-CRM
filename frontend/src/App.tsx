@@ -1,9 +1,11 @@
 import { Effect } from "effect"
 import { useEffect, useState } from "react"
 import {
+  listOrganizations,
   listPayments,
   listProducts,
   listProspects,
+  type OrganizationDto,
   type PaymentDto,
   type ProductDto,
   type ProspectDto,
@@ -24,11 +26,14 @@ const useApi = <T,>(effect: Effect.Effect<T, unknown>, initial: T): T => {
 
 export const App = () => {
   const products = useApi<ReadonlyArray<ProductDto>>(listProducts, [])
+  const organizations = useApi<ReadonlyArray<OrganizationDto>>(listOrganizations, [])
   const prospects = useApi<ReadonlyArray<ProspectDto>>(listProspects, [])
   const payments = useApi<ReadonlyArray<PaymentDto>>(listPayments, [])
 
   const productName = (id: string) =>
     products.find((p) => p.id === id)?.name ?? id
+  const organizationName = (id: string | null) =>
+    id === null ? null : (organizations.find((o) => o.id === id)?.name ?? id)
 
   return (
     <main style={{ fontFamily: "system-ui", margin: "2rem auto", maxWidth: 960 }}>
@@ -55,6 +60,9 @@ export const App = () => {
             <li key={p.id}>
               [{productName(p.productId)}] {p.name} — {p.email} —{" "}
               <strong>{p.stage}</strong>
+              {organizationName(p.organizationId) !== null
+                ? ` (${organizationName(p.organizationId)})`
+                : null}
             </li>
           ))}
         </ul>
@@ -67,6 +75,9 @@ export const App = () => {
             <li key={p.id}>
               [{productName(p.productId)}] {p.amount} {p.currency} via {p.source}{" "}
               — <strong>{p.status}</strong>
+              {organizationName(p.organizationId) !== null
+                ? ` (${organizationName(p.organizationId)})`
+                : null}
             </li>
           ))}
         </ul>

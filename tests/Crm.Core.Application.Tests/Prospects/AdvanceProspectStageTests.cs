@@ -16,7 +16,7 @@ public sealed class AdvanceProspectStageTests
     [Fact]
     public async Task Should_AdvanceStage_When_ProspectExists()
     {
-        var prospect = Prospect.Create(ProductId.New(), "Ada", Email.Create("ada@example.com").Value, null, Now).Value;
+        var prospect = Prospect.Create(ProductId.New(), null, "Ada", Email.Create("ada@example.com").Value, null, Now).Value;
         _repository.Items.Add(prospect);
         var useCase = new AdvanceProspectStage(_repository, _unitOfWork);
 

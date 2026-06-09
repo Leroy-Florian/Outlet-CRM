@@ -1,6 +1,7 @@
 using Crm.Core.Application.Abstractions;
 using Crm.Core.Application.Analytics;
 using Crm.Core.Application.ApiMetrics;
+using Crm.Core.Application.Organizations;
 using Crm.Core.Application.Payments;
 using Crm.Core.Application.Products;
 using Crm.Core.Application.Prospects;
@@ -65,6 +66,34 @@ public static class CrmEndpoints
             async (Guid productId, DateTimeOffset since, GetEndpointStatistics useCase, CancellationToken ct) =>
                 ToHttp(await useCase.HandleAsync(new GetEndpointStatisticsQuery(productId, since), ct), Results.Ok));
 
+        var organizations = api.MapGroup("/organizations");
+
+        organizations.MapGet("/", async (IOrganizationRepository repository, CancellationToken ct) =>
+            Results.Ok((await repository.ListAsync(ct)).Select(o => new
+            {
+                id = o.Id.Value,
+                o.Name,
+                o.Website,
+                o.CreatedAt,
+            })));
+
+        organizations.MapPost("/", async (CreateOrganizationCommand command, CreateOrganization useCase, CancellationToken ct) =>
+            ToHttp(await useCase.HandleAsync(command, ct), id => Results.Created($"/api/organizations/{id.Value}", new { id = id.Value })));
+
+        organizations.MapGet("/{organizationId:guid}/payments", async (Guid organizationId, IPaymentRepository repository, CancellationToken ct) =>
+            Results.Ok((await repository.ListAsync(ct))
+                .Where(p => p.OrganizationId?.Value == organizationId)
+                .Select(p => new
+                {
+                    p.Id,
+                    productId = p.ProductId.Value,
+                    amount = p.Amount.Amount,
+                    currency = p.Amount.Currency,
+                    p.Source,
+                    status = p.Status.ToString(),
+                    p.CreatedAt,
+                })));
+
         var prospects = api.MapGroup("/prospects");
 
         prospects.MapGet("/", async (IProspectRepository repository, CancellationToken ct) =>
@@ -72,6 +101,7 @@ public static class CrmEndpoints
             {
                 id = p.Id.Value,
                 productId = p.ProductId.Value,
+                organizationId = p.OrganizationId == null ? (Guid?)null : p.OrganizationId.Value.Value,
                 p.Name,
                 email = p.Email.Value,
                 p.Company,
@@ -97,6 +127,7 @@ public static class CrmEndpoints
             {
                 p.Id,
                 productId = p.ProductId.Value,
+                organizationId = p.OrganizationId == null ? (Guid?)null : p.OrganizationId.Value.Value,
                 amount = p.Amount.Amount,
                 currency = p.Amount.Currency,
                 p.Source,

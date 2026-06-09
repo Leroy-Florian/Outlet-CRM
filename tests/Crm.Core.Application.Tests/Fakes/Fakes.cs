@@ -1,6 +1,7 @@
 using Crm.Core.Application.Abstractions;
 using Crm.Core.Domain.Analytics;
 using Crm.Core.Domain.ApiMetrics;
+using Crm.Core.Domain.Organizations;
 using Crm.Core.Domain.Payments;
 using Crm.Core.Domain.Products;
 using Crm.Core.Domain.Prospects;
@@ -37,6 +38,23 @@ public sealed class FakeProductRepository : IProductRepository
     public Task AddAsync(Product product, CancellationToken cancellationToken)
     {
         Items.Add(product);
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class FakeOrganizationRepository : IOrganizationRepository
+{
+    public List<Organization> Items { get; } = [];
+
+    public Task<Organization?> GetByIdAsync(OrganizationId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Items.FirstOrDefault(o => o.Id == id));
+
+    public Task<IReadOnlyList<Organization>> ListAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Organization>>(Items);
+
+    public Task AddAsync(Organization organization, CancellationToken cancellationToken)
+    {
+        Items.Add(organization);
         return Task.CompletedTask;
     }
 }

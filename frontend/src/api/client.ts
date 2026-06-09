@@ -35,9 +35,17 @@ export interface ProductDto {
   readonly createdAt: string
 }
 
+export interface OrganizationDto {
+  readonly id: string
+  readonly name: string
+  readonly website: string | null
+  readonly createdAt: string
+}
+
 export interface ProspectDto {
   readonly id: string
   readonly productId: string
+  readonly organizationId: string | null
   readonly name: string
   readonly email: string
   readonly company: string | null
@@ -62,6 +70,7 @@ export interface RepositorySnapshotDto {
 export interface PaymentDto {
   readonly id: string
   readonly productId: string
+  readonly organizationId: string | null
   readonly amount: number
   readonly currency: string
   readonly source: string
@@ -71,6 +80,7 @@ export interface PaymentDto {
 }
 
 export const listProducts = fetchJson<ReadonlyArray<ProductDto>>("/api/products/")
+export const listOrganizations = fetchJson<ReadonlyArray<OrganizationDto>>("/api/organizations/")
 export const listProspects = fetchJson<ReadonlyArray<ProspectDto>>("/api/prospects/")
 export const listPayments = fetchJson<ReadonlyArray<PaymentDto>>("/api/payments/")
 export const getDownloadTrend = (

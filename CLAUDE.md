@@ -4,7 +4,10 @@ CRM / dashboard **multi-produits** (Outlet, FluxPDF, Accordent…). Le module
 `Products` est la racine : chaque produit suit N packages (NuGet **et** npm)
 et N repositories GitHub (issues/stars/forks) ; prospects, paiements,
 snapshots de téléchargements et métriques d'API sont tous rattachés à un
-`ProductId`. Sémantique des compteurs : NuGet = cumul total, npm = volume
+`ProductId`. Le module `Organizations` porte les clients : prospects et
+paiements peuvent être rattachés à une `OrganizationId` (optionnel —
+sponsoring anonyme possible), une organisation pouvant payer pour plusieurs
+produits. Sémantique des compteurs : NuGet = cumul total, npm = volume
 glissant 30 jours.
 
 ## Commandes clés

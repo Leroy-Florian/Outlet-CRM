@@ -1,3 +1,4 @@
+using Crm.Core.Domain.Organizations;
 using Crm.Core.Domain.Products;
 using Crm.Kernel.Shared;
 
@@ -7,10 +8,18 @@ public sealed class Prospect : AggregateRoot<ProspectId>
 {
     private readonly List<Interaction> _interactions = [];
 
-    private Prospect(ProspectId id, ProductId productId, string name, Email email, string? company, DateTimeOffset createdAt)
+    private Prospect(
+        ProspectId id,
+        ProductId productId,
+        OrganizationId? organizationId,
+        string name,
+        Email email,
+        string? company,
+        DateTimeOffset createdAt)
         : base(id)
     {
         ProductId = productId;
+        OrganizationId = organizationId;
         Name = name;
         Email = email;
         Company = company;
@@ -19,6 +28,8 @@ public sealed class Prospect : AggregateRoot<ProspectId>
     }
 
     public ProductId ProductId { get; }
+
+    public OrganizationId? OrganizationId { get; }
 
     public string Name { get; }
 
@@ -32,14 +43,20 @@ public sealed class Prospect : AggregateRoot<ProspectId>
 
     public IReadOnlyList<Interaction> Interactions => _interactions;
 
-    public static Result<Prospect> Create(ProductId productId, string name, Email email, string? company, DateTimeOffset createdAt)
+    public static Result<Prospect> Create(
+        ProductId productId,
+        OrganizationId? organizationId,
+        string name,
+        Email email,
+        string? company,
+        DateTimeOffset createdAt)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             return Result.Failure<Prospect>(ProspectErrors.NameRequired);
         }
 
-        return Result.Success(new Prospect(ProspectId.New(), productId, name.Trim(), email, company, createdAt));
+        return Result.Success(new Prospect(ProspectId.New(), productId, organizationId, name.Trim(), email, company, createdAt));
     }
 
     public Result Advance(ProspectStage target)

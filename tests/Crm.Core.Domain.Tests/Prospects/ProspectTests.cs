@@ -9,7 +9,7 @@ public sealed class ProspectTests
     private static readonly DateTimeOffset Now = new(2026, 6, 9, 12, 0, 0, TimeSpan.Zero);
 
     private static Prospect CreateProspect() =>
-        Prospect.Create(ProductId.New(), "Ada Lovelace", Email.Create("ada@example.com").Value, "Analytical Engines", Now).Value;
+        Prospect.Create(ProductId.New(), null, "Ada Lovelace", Email.Create("ada@example.com").Value, "Analytical Engines", Now).Value;
 
     [Fact]
     public void Should_StartInNewStage_When_Created()
@@ -22,7 +22,7 @@ public sealed class ProspectTests
     [Fact]
     public void Should_Fail_When_NameIsBlank()
     {
-        var result = Prospect.Create(ProductId.New(), "  ", Email.Create("ada@example.com").Value, null, Now);
+        var result = Prospect.Create(ProductId.New(), null, "  ", Email.Create("ada@example.com").Value, null, Now);
 
         Assert.True(result.IsFailure);
         Assert.Equal(ProspectErrors.NameRequired, result.Error);

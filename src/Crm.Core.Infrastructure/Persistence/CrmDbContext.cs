@@ -1,4 +1,5 @@
 using Crm.Core.Domain.Analytics;
+using Crm.Core.Domain.Organizations;
 using Crm.Core.Domain.Products;
 using Crm.Core.Domain.ApiMetrics;
 using Crm.Core.Domain.Payments;
@@ -10,6 +11,8 @@ namespace Crm.Core.Infrastructure.Persistence;
 public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options)
 {
     public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<Organization> Organizations => Set<Organization>();
 
     public DbSet<Prospect> Prospects => Set<Prospect>();
 

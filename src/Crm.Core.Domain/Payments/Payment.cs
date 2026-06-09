@@ -1,3 +1,4 @@
+using Crm.Core.Domain.Organizations;
 using Crm.Core.Domain.Products;
 using Crm.Kernel.Shared;
 
@@ -10,10 +11,18 @@ namespace Crm.Core.Domain.Payments;
 /// </summary>
 public sealed class Payment : AggregateRoot<Guid>
 {
-    private Payment(Guid id, ProductId productId, Money amount, string source, string externalReference, DateTimeOffset createdAt)
+    private Payment(
+        Guid id,
+        ProductId productId,
+        OrganizationId? organizationId,
+        Money amount,
+        string source,
+        string externalReference,
+        DateTimeOffset createdAt)
         : base(id)
     {
         ProductId = productId;
+        OrganizationId = organizationId;
         Amount = amount;
         Source = source;
         ExternalReference = externalReference;
@@ -22,6 +31,8 @@ public sealed class Payment : AggregateRoot<Guid>
     }
 
     public ProductId ProductId { get; }
+
+    public OrganizationId? OrganizationId { get; }
 
     public Money Amount { get; }
 
@@ -33,14 +44,21 @@ public sealed class Payment : AggregateRoot<Guid>
 
     public DateTimeOffset CreatedAt { get; }
 
-    public static Result<Payment> Create(ProductId productId, Money amount, string source, string externalReference, DateTimeOffset createdAt)
+    public static Result<Payment> Create(
+        ProductId productId,
+        OrganizationId? organizationId,
+        Money amount,
+        string source,
+        string externalReference,
+        DateTimeOffset createdAt)
     {
         if (string.IsNullOrWhiteSpace(source))
         {
             return Result.Failure<Payment>(PaymentErrors.SourceRequired);
         }
 
-        return Result.Success(new Payment(Guid.NewGuid(), productId, amount, source.Trim(), externalReference.Trim(), createdAt));
+        return Result.Success(new Payment(
+            Guid.NewGuid(), productId, organizationId, amount, source.Trim(), externalReference.Trim(), createdAt));
     }
 
     public Result Settle()

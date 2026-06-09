@@ -2,6 +2,7 @@ using Crm.Api;
 using Crm.Core.Application.Abstractions;
 using Crm.Core.Application.Analytics;
 using Crm.Core.Application.ApiMetrics;
+using Crm.Core.Application.Organizations;
 using Crm.Core.Application.Payments;
 using Crm.Core.Application.Products;
 using Crm.Core.Application.Prospects;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<IRepoStatsClient>(sp => sp.GetRequiredService<GitHubS
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddScoped<IProspectRepository, ProspectRepository>();
 builder.Services.AddScoped<IDownloadSnapshotRepository, DownloadSnapshotRepository>();
 builder.Services.AddScoped<IRepositorySnapshotRepository, RepositorySnapshotRepository>();
@@ -46,6 +48,7 @@ builder.Services.AddScoped<IApiMetricRepository, ApiMetricRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 builder.Services.AddScoped<CreateProduct>();
+builder.Services.AddScoped<CreateOrganization>();
 builder.Services.AddScoped<TrackPackage>();
 builder.Services.AddScoped<TrackRepository>();
 builder.Services.AddScoped<CreateProspect>();
