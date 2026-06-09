@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Crm.Kernel.Shared/Crm.Kernel.Shared.csproj" />
+    <Project Path="src/Crm.Core.Domain/Crm.Core.Domain.csproj" />
+    <Project Path="src/Crm.Core.Application/Crm.Core.Application.csproj" />
+    <Project Path="src/Crm.Core.Infrastructure/Crm.Core.Infrastructure.csproj" />
+    <Project Path="src/Crm.Api/Crm.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Crm.Core.Domain.Tests/Crm.Core.Domain.Tests.csproj" />
+    <Project Path="tests/Crm.Core.Application.Tests/Crm.Core.Application.Tests.csproj" />
+    <Project Path="tests/Crm.Architecture.Tests/Crm.Architecture.Tests.csproj" />
+  </Folder>
+</Solution>

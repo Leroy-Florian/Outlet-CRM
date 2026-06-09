@@ -1,0 +1,18 @@
+{
+  "stryker-config": {
+    "solution": "Crm.slnx",
+    "project-info": {
+      "name": "Outlet-CRM"
+    },
+    "mutate": [
+      "src/Crm.Core.Domain/**/*.cs",
+      "src/Crm.Core.Application/**/*.cs"
+    ],
+    "thresholds": {
+      "high": 90,
+      "low": 80,
+      "break": 80
+    },
+    "reporters": ["progress", "html", "markdown"]
+  }
+}
